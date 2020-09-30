@@ -19,3 +19,11 @@ Disclaimer: This library/driver is only developed for learning purposes.
             Original driver is availbale at https://github.com/sparkfun/SparkFun_TMP102_Arduino_Library. 
             However, the library is mature and bug free to be used by any TMP102 user. 
             In case of any bugs found. I would appreciate reporting them on the Github repo, to be fixed.
+            
+            
+<table class="table table-hover table-striped table-bordered">
+    <tr align="center">
+        <td><a href="https://www.sparkfun.com/products/11931"><img src="https://github.com/mkm684/TMP102-driver/blob/master/pics/AVR.jpg" alt="Arduino (AVR)"></a></td>
+        <td><a href="https://www.sparkfun.com/products/16304"><img src="https://github.com/mkm684/TMP102-driver/blob/master/pics/TMP102.jpg" alt="TMP102 Breakout Board"></a></td>
+    </tr>
+</table>
