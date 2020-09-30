@@ -50,9 +50,11 @@ typedef enum {
 
 struct TMP102 {
     // Attr
-    bool em;
     uint8_t addr;
-    char *ErrPtr;
+    char *ErrPtr; // Last error that ever happened. (doesn't clear until new error occur | empty means no error ever happened)
+    bool local_POL;  //for ISR handling | POL 0: false, POL 1: true
+    bool local_ISR;  // for ISR handling | interupt mode: false, compartor mode: true
+    bool em; // for post i2c data processing
 
     //I2C methods
     //public
@@ -78,7 +80,7 @@ struct TMP102 {
 
 
 extern const struct TMP102Class {
-    struct TMP102 (*new)(uint8_t address, bool extended_mode);
+    void (*new)(void* this, uint8_t address, bool extended_mode);
 } TMP102;
 
 

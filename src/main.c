@@ -16,45 +16,48 @@
 int16_t conc(uint8_t byte[]);
 void portInit();
 
+struct TMP102 sensor;
+
 int main() {
     uint8_t byte[2];
 
     UART_init(MYUBRR);
     portInit();
-    struct TMP102 sensor = TMP102.new(0x48, false);
+    TMP102.new(&sensor, 0x48, false);
 
-    //BR = (F_CPU) / (16 + 2*TWBR * 1) ~= 50kHz
+    // BR = (F_CPU) / (16 + 2*TWBR * 1) ~= 50kHz
     sensor.i2c_init_baud_rate(0x96, 0x0);
     sensor.config_faults(1);      // 1 fault
-    sensor.config_bit(POL, true); // polarity 0
+    sensor.config_bit(POL, true); // polarity 1
     sensor.config_bit(TM, false); // compartor mode
     sensor.config_conv_rate(1);   // 1hz
     sensor.config_bit(SD, false); // shutdown mode off
 
+    // read and print the config reg
     sensor.i2c_read(CONFIG_REG, byte);
     UART_puthex16(conc(byte));
     UART_putchar('\n');
 
-    sensor.config_THIGH(20.16);
-    sensor.config_TLOW(0);
+    sensor.config_THIGH(24.16);
+    sensor.config_TLOW(23.8);   
 
-	while(1) {
+	while(1) 
+    {
         sensor.i2c_read(TEMP_REG, byte);
+        UART_putStr("Temprature: ");
         UART_putS16(sensor.cal_temp(byte)/100);
         UART_putchar('.');
-        UART_putS16(sensor.cal_temp(byte)%100);    
-        UART_putchar('\n');       
-        // UART_puthex8(sensor.alert()); 
-        // UART_putchar('\n');       
-        // UART_puthex8(PINB);
-        // UART_putchar('\n');       
-        // UART_puthex8(PIND);
-        // UART_putchar('\n');   
+        UART_putS16(sensor.cal_temp(byte)%100);
+        UART_putStr(" | Alert: ");    
+        UART_puthex8(sensor.alert()); 
+        UART_putStr(" | Status: ");    
+        UART_putStr(sensor.ErrPtr);   
+        UART_putchar('\n');    
         _delay_ms(500);
 	}
 
+    // garbage collection to be improved
     free(sensor.ErrPtr);
-    free(&sensor);
     return 0;
 }
 
@@ -71,11 +74,31 @@ int16_t conc(uint8_t byte[])
     return ((int16_t)byte[0] << 8) | (byte[1]);
 }
 
-ISR (INT0_vect)          //if pin 2 is used
+//Example of TMP102 ISR handler
+ISR (INT0_vect)          //if pin D2 is used
 {
     UART_putStr("INT0_vect");
+    if (sensor.local_ISR) {
+        UART_putStr("interrupt mode");
+    } else {
+        UART_putStr("compartor mode");
+    }
+    if (sensor.local_POL) {
+        if (PIND2) {
+            UART_putStr("Temprature went above THIGH_REG");
+        } else {
+            UART_putStr("Temprature went below TLOW_REG");
+        }
+    } else {
+        if (PIND2){
+            UART_putStr("Temprature went below TLOW_REG");
+        } else {
+            UART_putStr("Temprature went above THIGH_REG");
+        }
+    }
 }
-ISR (INT1_vect)        //if pin 3 is used
+
+ISR (INT1_vect)        //if pin D3 is used
 {
     UART_putStr("INT1_vect");
 }

@@ -10,7 +10,12 @@ This is availbale to be used by anyone without any pre consultantions.
 The src folder contains a UART driver for debugging purposes.
 the UART driver code is sourced from http://www.rjhcoding.com/avrc-uart.php
 
-Use the make.sh to compile and upload the library.
+Use the make.sh to compile and upload your code.
 example command: make.sh COM19
 
 main.c is an example use of the driver.
+
+Disclaimer: This library/driver is only developed for learning purposes. 
+            Original driver is availbale at https://github.com/sparkfun/SparkFun_TMP102_Arduino_Library. 
+            However, the library is mature and bug free to be used by any TMP102 user. 
+            In case of any bugs found. I would appreciate reporting them on the Github repo, to be fixed.

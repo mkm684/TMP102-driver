@@ -1,7 +1,7 @@
 #include "i2c_twi.h"
 
 //I2C
-struct TMP102 *me;
+struct TMP102 *me; // intenral use
 
 /* equation
 SCL frequency (BR) = (F_CPU) / (16 + 2*TWBR * prescaler)*/
@@ -112,9 +112,14 @@ static void config_bit(ConfigBit_t bit, bool val)
             data[2] &= ~(1<<bit);
         }
     }
+
     i2c_write(data, 3);
     if (bit == EM)
         me->em = val;
+    else if (bit == POL)
+        me->local_POL = val;
+    else if (bit == TM)
+        me->local_ISR = val;
 }
 
     //0:0.25hz
@@ -235,17 +240,20 @@ void _error_check(uint8_t error)
     upperNibble += upperNibble > 9 ? 'A' - 10 : '0';
     lowerNibble += lowerNibble > 9 ? 'A' - 10 : '0';
     //put the error code in error pointer
-    me->ErrPtr[26] = upperNibble;
-    me->ErrPtr[27] = lowerNibble;
-    me->ErrPtr[28] = '\n';
+
+    strcpy(me->ErrPtr+26, &upperNibble);
+    strcpy(me->ErrPtr+27, &lowerNibble);
 }
 
-static struct TMP102 new(uint8_t address, bool extended_mode) {
+static void new(void* this, uint8_t address, bool extended_mode) {
     //OBJ INIT
     char* temp_ptr = malloc(sizeof(char)*MAX_SIZE_STR + 1);
     strcpy(temp_ptr, ""); // init error to empty string
-    me = malloc(sizeof(struct TMP102));
+    // me = malloc(sizeof(struct TMP102));
+    me  = (struct TMP102*)this;
     me->em = extended_mode;
+    me->local_ISR = false;   // default
+    me->local_POL = false;  // default
     me->addr = address;
     me->ErrPtr = temp_ptr;
     me->i2c_init_baud_rate = &i2c_init_baud_rate;
@@ -261,9 +269,9 @@ static struct TMP102 new(uint8_t address, bool extended_mode) {
 
     //EXT Interupt Enable;
     EICRA = 0x05; //Any logical change on INT0 and INT1 generates an interrupt request.
-    EIMSK = 0x3;
+    EIMSK = 0x03;
     sei();
 
-    return *me;
+    // return *me;
 }
 const struct TMP102Class TMP102={.new=&new};
