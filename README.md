@@ -5,7 +5,7 @@ The TMP102 uses the I2C bus of the microcontroller to communicate the temperatur
 https://www.sparkfun.com/products/13314
 
 The driver is developed for AVR from ground up. 
-This is availbale to be used by anyone without any pre consultantions. 
+This is availbale to be used by anyone without any pre consultation.
 
 The src folder contains a UART driver for debugging purposes.
 the UART driver code is sourced from http://www.rjhcoding.com/avrc-uart.php
